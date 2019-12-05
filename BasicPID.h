@@ -69,9 +69,11 @@ BasicPID::BasicPID (float Gain_P, float Gain_I, float Gain_D, bool useFilter, fl
 void BasicPID::update(float desired, float input, float DT){
   error = desired - input;
   if(enableFilter){
-    if(LP_A == 0)
+    if(LP_A == 0){
       // Default filtering cut-off frequency to be half the input frequency
       LP_A = (1.0f / DT) / 2.0f;
+      BasicPID::error_filter.setLP_A(LP_A);
+    }
     BasicPID::derror = BasicPID::error_filter.update((BasicPID::error - BasicPID::last_error) / DT, DT);
   }
   else
