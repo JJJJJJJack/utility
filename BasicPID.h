@@ -25,14 +25,15 @@
 using namespace std;
 
 class BasicPID {
-  bool enableFilter = true;
+  bool enableFilter = true, controllerFirstRun = true;
   float KP = 0, KI = 0, KD = 0;
   float LP_A = 0;
   LPfilter error_filter;
  private:
-  float last_error = 0, integrate_error = 0, integral_limit = 0, derror = 0, error = 0;
+  float last_error = 0, integral_limit = 0;
  public:
   float output = 0;
+  float integrate_error = 0, derror = 0, error = 0;
   BasicPID (float Gain_P, float Gain_I, float Gain_D);
   BasicPID (float Gain_P, float Gain_I, float Gain_D, bool useFilter);
   BasicPID (float Gain_P, float Gain_I, float Gain_D, bool useFilter, float A);
@@ -64,6 +65,7 @@ BasicPID::BasicPID (float Gain_P, float Gain_I, float Gain_D, bool useFilter, fl
   KD = Gain_D;
   enableFilter = useFilter;
   LP_A = A;
+  BasicPID::error_filter.setLP_A(A);
 }
 
 void BasicPID::update(float desired, float input, float DT){
@@ -74,7 +76,8 @@ void BasicPID::update(float desired, float input, float DT){
       LP_A = (1.0f / DT) / 2.0f;
       BasicPID::error_filter.setLP_A(LP_A);
     }
-    BasicPID::derror = BasicPID::error_filter.update((BasicPID::error - BasicPID::last_error) / DT, DT);
+    if(controllerFirstRun == false)
+      BasicPID::derror = BasicPID::error_filter.update((BasicPID::error - BasicPID::last_error) / DT, DT);
   }
   else
     BasicPID::derror = (BasicPID::error - BasicPID::last_error) / DT;
@@ -88,6 +91,7 @@ void BasicPID::update(float desired, float input, float DT){
   float I = KI * integrate_error;
   last_error = error;
   output = P + I + D;
+  controllerFirstRun = false;
 }
 
 void BasicPID::resetIntegral(void){
