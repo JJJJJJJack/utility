@@ -25,7 +25,7 @@
 using namespace std;
 
 class BasicPID {
-  bool enableFilter = true, controllerFirstRun = true;
+  bool enableFilter = true;
   float KP = 0, KI = 0, KD = 0;
   float LP_A = 0;
   LPfilter error_filter;
@@ -33,6 +33,7 @@ class BasicPID {
   float last_error = 0, integral_limit = 0;
  public:
   float output = 0;
+  bool controllerFirstRun = true;
   float integrate_error = 0, derror = 0, error = 0;
   BasicPID (float Gain_P, float Gain_I, float Gain_D);
   BasicPID (float Gain_P, float Gain_I, float Gain_D, bool useFilter);
